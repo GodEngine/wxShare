@@ -1,64 +1,36 @@
-# 运营活动
+## 使用流程
 
-## 技术栈
-- ES6
-- Babel
-- Webpack2
-- React Stack
-  - Preact
-  - React DOM
-  - React Router DOM
-- SCSS
-- Unit Test
-  - Karma
-  - Jasmine
-  - Enzyme
-  - PhantomJS
-- E2E Test
-  - Nightwatch
-- API
-  - [apidoc](https://github.com/apidoc/apidoc)
+------
 
-## NPM Scripts
-- `npm run dev` 开发
-- `npm run build` 编译
-- `npm run test:unit` 单元测试 使用 PhantomJS 容器（执行1次单元测试并退出）
-- `npm run test:unit:watch` 单元测试 使用 PhantomJS 容器（挂起，监听修改并重新测试）
-- `npm run coverage`   运行一个基于 http-server 的 webServer 来查看单元测试覆盖率
+用来实现微信内二次分享时的指定分享的title(标题)、desc（描述）、img（缩略图）。步骤：
 
-## 目录结构
-```javascript
-/hd
- - /components // 基于组件化思想，把活动页面通用的部分提出来作为公共组件，开发时可按需引入
- - /constants // 定义全局使用的常量
- - /coverage // 单元测试覆盖率报告
- - /libs // 常用库函数（获取用户详情、handlebars helper 等）
- - /npm-scripts // 交互式的 NPM Scripts
- - /public // Webpack 打包编译后文件存放目录
- - /routes // Koa 路由
- - /SCSS // 通用 SCSS 样式
- - /src // 开发目录
- - /test // 测试（unit、e2e）
- - /utils // 工具函数
- - /views // Koa 模板
- - /webpack // 拆分的 Webpack 任务（若全部写在 webpack.config.js 中，会导致文件臃肿、不便阅读）
- - .babelrc // Babel 配置
- - .eslintrc // ESLint 配置
- - .gitignore // Git 忽略定义
- - CHANGELOG.md // 更新日志
- - karma.conf.js // Karma 配置
- - nightwatch.conf.js // Nightwatch 配置
- - package-lock.json // 锁定 NPM 依赖包的版本
- - package.json // NPM Package JSON
- - postcss.config.js // Post CSS 配置
- - README.md // 说明文档
- - webpack.config.babel.js // Webpack 配置
-```
+> * 配置微信公众号后台
+> * 搭建微信二次分享所需的服务端
+> * 前端js配置
 
-## 开发流程
-- 从 master 分支创建你的分支
-- cd apps/hd/ 安装依赖 yarn install
-- `npm run dev` to coding
-- `npm run build` to building
-- 测试：push code to `test`
-- 上线：create `merge request` from your branch to master
+------
+
+
+### 1.  配置微信公众号后台
+>1 登录属于“服务号”的微信公众平台(非服务号可以return了)。
+>2 准备好自己的appid和appSecret
+>3 进入**公众号设置**—>**功能设置**->**js接口安全域名**
+>4 在**js接口安全域名**设置中添加网页的域名（按提示在网页所在服务器上放一个文件,用以验证）
+>5 进入**基本配置**->**ip白名单**
+>6 选择**修改**，添加网页服务器的出口ip（在不填写或填错的情况下，请求微信接口会有一个提示错误msg，‘* . * . * . *’不在ip白名单内，该‘* . * . * . *’就是你的服务器出口ip）
+>7 至此，微信平台设置完毕
+
+
+
+
+### 2. 搭建服务端接口服务
+>1 前端请求微信接口存在跨域问题。
+>2 服务端接口中使用appid和appSecret来请求微信接口，拿到access_token
+>3 再用access_token请求微信接口拿到ticket
+>4 加密包含以上俩个参数和其他如url、timestamp等参数，返回给前端。
+>5 具体逻辑参考route下代码或者微信开发者文档。
+
+
+### 3. 前端js配置
+>1 引入微信jssdk(res.wx.qq.com/open/js/jweixin-1.2.0.js)
+>2 src下执行gulp js，拿到生成的js脚本（es6需要编译下）。包含了配置wxConfig，即标题、描述、缩略图等配置，访问接口数据等逻辑
